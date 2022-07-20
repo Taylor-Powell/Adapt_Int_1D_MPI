@@ -63,7 +63,7 @@ int main(int argc, char** argv)
     double dx = (xr - xl) / nproc;
 
     // Structs used for the integrate function
-    vals x0, xf;
+    gauss_quad::vals x0, xf;
     x0.x = xl + node * dx;
     x0.fx = f_x(x0.x);
     xf.x = xl + (node + 1) * dx;

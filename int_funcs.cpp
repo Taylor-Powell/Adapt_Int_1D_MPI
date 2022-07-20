@@ -5,7 +5,6 @@
 #include "int_funcs.h"
 
 using namespace std;
-using namespace Eigen;
 
 const double pi = 3.14159265358979323846; // 20 digits
 
@@ -17,14 +16,14 @@ const double pi = 3.14159265358979323846; // 20 digits
 */
 double gauss_quad::integrate(function<double(double x)> f_x, vals x0, vals xf, double tol, int N)
 {
-	VectorXd x = gauss_quad::LegendreRootFinder(N);
-	VectorXd w = gauss_quad::LegendreWeightFinder(x, N);
+	Eigen::VectorXd x = gauss_quad::LegendreRootFinder(N);
+	Eigen::VectorXd w = gauss_quad::LegendreWeightFinder(x, N);
 	vals xm = gauss_quad::gauss_struct(f_x, x0, xf, x, w, N);
 	return gauss_quad::gauss_int_comp(f_x, x0, xm, xf, tol, N, x, w);
 }
 
 // Returns Gauss N-point integration value
-double gauss_quad::gauss_int_comp(function<double(double x)> f_x, vals x0, vals xm, vals xf, double tol, int N, VectorXd x, VectorXd w)
+double gauss_quad::gauss_int_comp(function<double(double x)> f_x, vals x0, vals xm, vals xf, double tol, int N, Eigen::VectorXd x, Eigen::VectorXd w)
 {
 	vals xl = gauss_quad::gauss_struct(f_x, x0, xm, x, w, N);
 	vals xr = gauss_quad::gauss_struct(f_x, xm, xf, x, w, N);
@@ -48,7 +47,7 @@ double gauss_quad::gauss_int_comp(function<double(double x)> f_x, vals x0, vals 
 }
 
 // Function to purely return Gauss N-point integration from x0 to xf
-vals gauss_quad::gauss_struct(function<double(double x)> f_x, vals x0, vals xf, VectorXd x, VectorXd w, int N)
+gauss_quad::vals gauss_quad::gauss_struct(function<double(double x)> f_x, vals x0, vals xf, Eigen::VectorXd x, Eigen::VectorXd w, int N)
 {
 	vals xm;
 	xm.x = (x0.x + xf.x) / 2.0;
@@ -110,16 +109,16 @@ double gauss_quad::Legendre_Gen_prime(double x, int n)
 	polynomials, x=0 is a guarenteed root, thus we narrow our search interval
 	one epsilon away from x=0 and add in the last root manually.
 */
-VectorXd gauss_quad::LegendreRootFinder(int n)
+Eigen::VectorXd gauss_quad::LegendreRootFinder(int n)
 {
 	double xl = -1.0;
 	double xr = -0.000000001; // epsilon shift from x=0
 	int rcount = 0;
 	int N = 20 * n; // Parse regions 40 times more fine than number of roots in interval -- n/2 roots in [-1,0)
 	double dx = (xr - xl) / N;
-	VectorXd roots(n); // x_i for Legendre roots
-	VectorXd droots(n);// w_i for weights in Gauss Quadrature
-	VectorXd x(N + 1); // fill array of x-values
+	Eigen::VectorXd roots(n); // x_i for Legendre roots
+	Eigen::VectorXd droots(n);// w_i for weights in Gauss Quadrature
+	Eigen::VectorXd x(N + 1); // fill array of x-values
 	for (int i = 0; i < N + 1; i++)
 		x(i) = xl + (double)i * dx;
 
@@ -127,14 +126,14 @@ VectorXd gauss_quad::LegendreRootFinder(int n)
 	{
 		if (abs(Legendre_Gen(x(i), n)) < 1.0e-15) // allow epsilon accuracy
 		{
-			roots(n - rcount - 1.) = -x(i); // reflect root to positive side
+			roots(n - rcount - 1) = -x(i); // reflect root to positive side
 			roots(rcount) = x(i);
 			rcount += 1;
 		}
-		else if (Legendre_Gen(x(i), n) * Legendre_Gen(x(i + 1.), n) < 0.0)
+		else if (Legendre_Gen(x(i), n) * Legendre_Gen(x(i + 1), n) < 0.0)
 		{
-			roots(n - rcount - 1.) = -bisectionRootLeg(x(i), x(i + 1.), 1.0e-15, n);// reflect root to positive side
-			roots(rcount) = -roots(n - rcount - 1.);
+			roots(n - rcount - 1) = -bisectionRootLeg(x(i), x(i + 1), 1.0e-15, n);// reflect root to positive side
+			roots(rcount) = -roots(n - rcount - 1);
 			rcount += 1;
 		}
 	}
@@ -182,9 +181,9 @@ double gauss_quad::bisectionRootLeg(double xl, double xr, double eps, int n)
 	Shell function to find corresponding weights for Gauss Quadrature based
 	on vector of roots of the corresponding n-th order Legendre Polynomials
 */
-VectorXd gauss_quad::LegendreWeightFinder(VectorXd r, int n)
+Eigen::VectorXd gauss_quad::LegendreWeightFinder(Eigen::VectorXd r, int n)
 {
-	VectorXd w(n);
+	Eigen::VectorXd w(n);
 	for (int i = 0; i < n; i++)
 		w(i) = 2.0 / ((1.0 - r(i) * r(i)) * pow(Legendre_Gen_prime(r(i), n), 2));
 	return w;
