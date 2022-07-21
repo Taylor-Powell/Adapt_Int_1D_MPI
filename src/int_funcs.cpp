@@ -4,8 +4,6 @@
 #include <Eigen/Dense>
 #include "int_funcs.h"
 
-using namespace std;
-
 const double pi = 3.14159265358979323846; // 20 digits
 
 /*
@@ -14,7 +12,7 @@ const double pi = 3.14159265358979323846; // 20 digits
 	If statement at the beginning is only relevant for this particular code to compare outputs and timing
 	directly with other methods based on number of function calls.
 */
-double gauss_quad::integrate(function<double(double x)> f_x, vals x0, vals xf, double tol, int N)
+double gauss_quad::integrate(std::function<double(double x)> f_x, vals x0, vals xf, double tol, int N)
 {
 	Eigen::VectorXd x = gauss_quad::LegendreRootFinder(N);
 	Eigen::VectorXd w = gauss_quad::LegendreWeightFinder(x, N);
@@ -23,7 +21,7 @@ double gauss_quad::integrate(function<double(double x)> f_x, vals x0, vals xf, d
 }
 
 // Returns Gauss N-point integration value
-double gauss_quad::gauss_int_comp(function<double(double x)> f_x, vals x0, vals xm, vals xf, double tol, int N, Eigen::VectorXd x, Eigen::VectorXd w)
+double gauss_quad::gauss_int_comp(std::function<double(double x)> f_x, vals x0, vals xm, vals xf, double tol, int N, Eigen::VectorXd x, Eigen::VectorXd w)
 {
 	vals xl = gauss_quad::gauss_struct(f_x, x0, xm, x, w, N);
 	vals xr = gauss_quad::gauss_struct(f_x, xm, xf, x, w, N);
@@ -33,8 +31,8 @@ double gauss_quad::gauss_int_comp(function<double(double x)> f_x, vals x0, vals 
 	{
 		if (abs(xf.fx - x0.fx) > 10000.0)
 		{
-			cout << "Possible singularity detected in the integration range near "
-				<< "x = " << xm.x << endl
+			std::cout << "Possible singularity detected in the integration range near "
+				<< "x = " << xm.x << std::endl
 				<< "Exiting function...";
 			exit(2);
 		}
@@ -47,7 +45,7 @@ double gauss_quad::gauss_int_comp(function<double(double x)> f_x, vals x0, vals 
 }
 
 // Function to purely return Gauss N-point integration from x0 to xf
-gauss_quad::vals gauss_quad::gauss_struct(function<double(double x)> f_x, vals x0, vals xf, Eigen::VectorXd x, Eigen::VectorXd w, int N)
+gauss_quad::vals gauss_quad::gauss_struct(std::function<double(double x)> f_x, vals x0, vals xf, Eigen::VectorXd x, Eigen::VectorXd w, int N)
 {
 	vals xm;
 	xm.x = (x0.x + xf.x) / 2.0;

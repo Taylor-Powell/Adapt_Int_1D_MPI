@@ -28,8 +28,6 @@
 #include <mpi.h>
 #include "int_funcs.h"
 
-using namespace std;
-
 const double pi = 3.14159265358979323846; // 20 digits
 const double e = 2.71828182845904523536; // 20 digits
 
@@ -80,14 +78,16 @@ int main(int argc, char** argv)
     MPI_Reduce(&time, &mintime, 1, MPI_DOUBLE, MPI_MIN, 0, MPI_COMM_WORLD);
     if (node == 0) // Output on main node
     {
-        cout << "f(x) = x cos(10 x^2) / (1 + x^2)" << endl; // Testing
-        cout << "Integral of f(x) using Adaptive " << N << "-point Gauss Quadrature "
-            << fixed << setprecision(3)
-            << "from " << xl << " < x < " << xr << " is:" << endl;
-        cout << setprecision(min(decimals, 15)) << Qval << endl << endl;
-        cout << setprecision(2);
-        cout << "Max time: " << 1000000.0 * maxtime << " microseconds" << endl;
-        cout << "Min time: " << 1000000.0 * mintime << " microseconds" << endl;
+        std::cout << "f(x) = x cos(10 x^2) / (1 + x^2)" << std::endl; // Testing
+        std::cout << "Integral of f(x) using Adaptive " << N << "-point Gauss Quadrature "
+            << std::fixed << std::setprecision(3)
+            << "from " << xl << " < x < " << xr << " is:" << std::endl
+            << std::setprecision(std::min(decimals, 15)) << Qval 
+            << std::endl << std::endl;
+
+        std::cout << std::setprecision(2)
+            << "Max time: " << 1000000.0 * maxtime << " microseconds" << std::endl
+            << "Min time: " << 1000000.0 * mintime << " microseconds" << std::endl;
     }
     MPI_Finalize();
 
